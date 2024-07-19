@@ -16,7 +16,7 @@ class Int32(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return int.from_bytes(data[: cls.__data_size__], sys.byteorder)
+        return cls.__data_size__, int.from_bytes(data[: cls.__data_size__], sys.byteorder)
 
 
 class Int16(TypeDescriptor):
@@ -28,7 +28,7 @@ class Int16(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return int.from_bytes(data[: cls.__data_size__], sys.byteorder)
+        return cls.__data_size__, int.from_bytes(data[: cls.__data_size__], sys.byteorder)
 
 
 class Int8(TypeDescriptor):
@@ -40,4 +40,4 @@ class Int8(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return int.from_bytes(data[: cls.__data_size__], sys.byteorder)
+        return cls.__data_size__, int.from_bytes(data[: cls.__data_size__], sys.byteorder)
