@@ -16,4 +16,4 @@ class Float(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return struct.unpack("f", data[: cls.__data_size__])[0]
+        return cls.__data_size__, struct.unpack("f", data[: cls.__data_size__])[0]
