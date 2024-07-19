@@ -99,12 +99,13 @@ class Packer:
                 f"Got data of length {data_len} and expected data of length >= {self._min_size}"
             )
 
-        for attr, attr_type, optional, _, unpacker in self._packing_data:
+        for attr, _, optional, _, unpacker in self._packing_data:
             if offset >= data_len and optional:
                 break
 
-            val = unpacker(data[offset:])
-            offset += attr_type.__data_size__
+            size, val = unpacker(data[offset:])
+            offset += size
+
             setattr(self, attr, val)
 
         return offset, True
