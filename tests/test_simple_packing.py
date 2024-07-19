@@ -1,3 +1,5 @@
+import math
+import struct
 from dataclasses import (
     dataclass,
 )
@@ -15,14 +17,14 @@ from packer import (
 @dataclass
 class SimpleStruct:
     id: Pack[Int32] = 0
-    val: OptionalPack[Int32] = None
+    val: OptionalPack[Float] = None
 
 
 def test_simple_packing() -> bool:
     t = SimpleStruct()
-    t.unpack(bytearray([1, 0, 0, 0] * 2))
+    t.unpack(bytearray([1, 0, 0, 0]) + struct.pack("f", 1.0))
 
-    assert t.id == 1 and t.val == 1
+    assert t.id == 1 and t.val and math.isclose(t.val, 1.0, rel_tol=4e-9)
 
     t = SimpleStruct()
     t.unpack(bytearray([1, 0, 0, 0] * 1))
