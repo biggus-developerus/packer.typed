@@ -46,3 +46,18 @@ test.pack() # b"\x02\x00hi"
 test.test2 = "hi2"
 test.pack() #b"\x02\x00hi\x03\x00hi2"
 ```
+
+## Notes
+#### If you're going to use this with a dataclass then be prepared to lose object attr typehints. A simple workaround is to declare object attributes with the types like the following:
+```py
+@packable
+@dataclass
+class SimpleStruct:
+    id: Pack[Int32] = 0
+    val: OptionalPack[Float] = None
+
+    def __post_init__(self) -> None:
+        self.id: int
+        self.val: float | None
+```
+---
