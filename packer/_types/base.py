@@ -5,6 +5,7 @@ __all__ = (
 )
 
 from typing import (
+    Any,
     Generic,
     TypeVar,
 )
@@ -20,7 +21,7 @@ class TypeDescriptor:
         raise NotImplementedError
 
     @classmethod
-    def unpack(cls, _: bytearray) -> int:
+    def unpack(cls, _: bytearray) -> tuple[int, Any]:
         raise NotImplementedError
 
 
