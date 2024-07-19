@@ -20,7 +20,7 @@ class PackableProtocol(Protocol):
     _packing_data: list[tuple[str, Type, bool, Callable, Callable]]
 
     def pack(self) -> bytearray: ...
-    def unpack(self, data: bytearray) -> tuple[int, bool]: ...
+    def unpack(self, data: bytearray) -> int: ...
 
 
 class Packer:
@@ -90,7 +90,7 @@ class Packer:
 
         return data
 
-    def unpack(self, data: bytearray) -> tuple[int, bool]:
+    def unpack(self, data: bytearray) -> int:
         offset = 0
         data_len = len(data)
 
@@ -108,7 +108,7 @@ class Packer:
 
             setattr(self, attr, val)
 
-        return offset, True
+        return offset
 
 
 T = TypeVar("T")
