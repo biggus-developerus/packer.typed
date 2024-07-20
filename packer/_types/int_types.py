@@ -6,7 +6,7 @@ from .base import (
     TypeDescriptor,
 )
 
-#TODO: Type options, where it's possible to do the following:
+# TODO: Type options, where it's possible to do the following:
 """
 @packable
 @dataclass
@@ -15,6 +15,7 @@ class Test:
 """
 # Where the False denotes whether it's a signed or unsigned int.
 # This could be done with metaclasses and overriding __getitem__ 👍👍
+
 
 class Int32(TypeDescriptor):
     __data_size__: int = 4
@@ -25,7 +26,9 @@ class Int32(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return cls.__data_size__, int.from_bytes(data[: cls.__data_size__], sys.byteorder, signed=True)
+        return cls.__data_size__, int.from_bytes(
+            data[: cls.__data_size__], sys.byteorder, signed=True
+        )
 
 
 class Int16(TypeDescriptor):
@@ -37,7 +40,9 @@ class Int16(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return cls.__data_size__, int.from_bytes(data[: cls.__data_size__], sys.byteorder, signed=True)
+        return cls.__data_size__, int.from_bytes(
+            data[: cls.__data_size__], sys.byteorder, signed=True
+        )
 
 
 class Int8(TypeDescriptor):
@@ -49,7 +54,10 @@ class Int8(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, int]:
-        return cls.__data_size__, int.from_bytes(data[: cls.__data_size__], sys.byteorder, signed=True)
+        return cls.__data_size__, int.from_bytes(
+            data[: cls.__data_size__], sys.byteorder, signed=True
+        )
+
 
 class UInt32(TypeDescriptor):
     __data_size__: int = 4
