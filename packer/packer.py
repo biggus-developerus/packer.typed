@@ -49,15 +49,20 @@ class Packer:
             if not origin or origin not in {Pack, OptionalPack}:
                 continue
 
-            if not issubclass(inner_type, TypeDescriptor):
+            if not issubclass(inner_type, (TypeDescriptor, Packer)):
                 raise ValueError(
-                    f"The type corresponding with the attribute '{attr}' is marked as Pack but does not subclass TypeDescriptor."
+                    f"The type corresponding with the attribute '{attr}' is marked as Pack but does not subclass TypeDescriptor/Packer."
                 )
 
             optional = True
             if not origin is OptionalPack:
                 optional = False
-                cls._min_size += inner_type.__data_size__
+                data_size = 0
+                if issubclass(inner_type, (Packer,)):
+                    data_size = inner_type._min_size
+                else:
+                    data_size = inner_type.__data_size__
+                cls._min_size += data_size
 
             if optional and not next_origin is OptionalPack:
                 raise ValueError(
