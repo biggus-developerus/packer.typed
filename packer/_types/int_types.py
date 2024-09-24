@@ -16,6 +16,7 @@ class Test:
 # Where the False denotes whether it's a signed or unsigned int.
 # This could be done with metaclasses and overriding __getitem__ 👍👍
 
+
 class Int64(TypeDescriptor):
     __data_size__: int = 8
 
@@ -28,6 +29,7 @@ class Int64(TypeDescriptor):
         return cls.__data_size__, int.from_bytes(
             data[: cls.__data_size__], sys.byteorder, signed=True
         )
+
 
 class Int32(TypeDescriptor):
     __data_size__: int = 4
