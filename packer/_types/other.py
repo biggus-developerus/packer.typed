@@ -14,4 +14,4 @@ class AllData(TypeDescriptor):
 
     @classmethod
     def unpack(cls, data: bytearray) -> tuple[int, bytearray]:
-        return cls.__data_size__, data
+        return len(data), data
