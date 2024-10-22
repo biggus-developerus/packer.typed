@@ -28,11 +28,11 @@ class _Int(metaclass=IntMeta):
     _signed: bool = False
 
     @classmethod
-    def __pack__(cls, val: int) -> bytes:
+    def pack(cls, val: int) -> bytes:
         return val.to_bytes(cls._size, cls._order, signed=cls._signed)
 
     @classmethod
-    def __unpack__(cls, data: bytes) -> int:
+    def unpack(cls, data: bytes) -> int:
         return int.from_bytes(data[: cls._size], cls._order, signed=cls._signed)
 
 

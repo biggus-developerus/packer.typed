@@ -14,11 +14,11 @@ class _FileType(TypeDescriptor):
     _size: int = 1
 
     @classmethod
-    def __pack__(cls, val: FileTypes) -> FileTypes:
+    def pack(cls, val: FileTypes) -> FileTypes:
         return val.to_bytes(1, "little")
 
     @classmethod
-    def __unpack__(cls, data: bytes) -> FileTypes:
+    def unpack(cls, data: bytes) -> FileTypes:
         return FileTypes(int.from_bytes(data[:cls._size], "little"))
     
 FileType = _FileType | FileTypes # to get the typehint back

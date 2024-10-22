@@ -99,7 +99,8 @@ class Packer(Packable):
             last_origin = origin
 
         cls.pack, cls.unpack = create_pack_pair(cls.__base__, cls._packing_data)
-
+        cls._size = offset
+        
         return instance
 
     def pack(self) -> bytearray: ...

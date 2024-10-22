@@ -16,11 +16,11 @@ class _Float(metaclass=FloatMeta):
     _size: int = 4
 
     @classmethod
-    def __pack__(cls, val: float) -> bytes:
+    def pack(cls, val: float) -> bytes:
         return struct.pack(cls._size_str, val)
 
     @classmethod
-    def __unpack__(cls, data: bytes) -> float:
+    def unpack(cls, data: bytes) -> float:
         return struct.unpack(cls._size_str, data)[0]
 
 
