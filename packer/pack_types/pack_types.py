@@ -16,7 +16,7 @@ from typing import Type
 from .float_types import *
 from .int_types import *
 
-int8 = Type[Int["L2"]]
+int8 = Type[Int["L1"]]
 int16 = Type[Int["L2"]]
 int32 = Type[Int["L4"]]
 int64 = Type[Int["L8"]]
