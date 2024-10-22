@@ -7,16 +7,8 @@ A modern library that simplifies packing and unpacking to a whole other level.
 ## Usage
 ### Basic Usage
 ```python
-from packer import (
-    Pack, 
-    OptionalPack,
-    packable, 
-    int32, 
-    int8, 
-    float,
-)
-
 from dataclasses import dataclass
+from packer import *
 
 @packable
 @dataclass
@@ -27,4 +19,49 @@ class SimpleStruct:
 
 s = SimpleStruct(3, 2, None)
 s.pack() # bytearray(b'\x03\x00\x00\x00\x02\x00')
+
+s.unpack(bytearray(b'\x01\x00\x00\x00\x04\x00'))
+# s.int32_member == 1
+# s.int8_member == 4
+# s.float_member == None
+```
+
+### Custom types
+```python
+from enum import IntEnum
+from dataclasses import dataclass
+
+from packer import *
+from packer.protocols import TypeDescriptor
+
+class FileTypes(IntEnum):
+    UNK = 0
+    TXT = 1
+    BIN = 2
+
+class _FileType(TypeDescriptor):
+    _size: int = 1
+
+    @classmethod
+    def __pack__(cls, val: FileTypes) -> FileTypes:
+        return val.to_bytes(1, "little")
+
+    @classmethod
+    def __unpack__(cls, data: bytes) -> FileTypes:
+        return FileTypes(int.from_bytes(data[:cls._size], "little"))
+    
+FileType = _FileType | FileTypes # to get the typehint of FileTypes back
+
+@packable
+@dataclass
+class File:
+    file_type: Pack[FileType]
+    file_data: Pack[AllData]
+
+file = File(FileTypes.BIN, bytearray([3]*5))
+file.pack() # bytearray(b'\x02\x03\x03\x03\x03\x03')
+
+file.unpack(bytearray(b'\x01\x03\x03\x03\x03\x03hi!'))
+# file.file_type == FileTypes.TXT
+# file.data == b"\x03\x03\x03\x03\x03hi!"
 ```
