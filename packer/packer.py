@@ -10,6 +10,7 @@ from dataclasses import (
 from typing import (
     Any,
     ItemsView,
+    Optional,
     Protocol,
     Self,
     Type,
@@ -18,7 +19,6 @@ from typing import (
     get_origin,
     get_type_hints,
     runtime_checkable,
-    Optional,
 )
 
 from .exceptions import *
@@ -56,6 +56,7 @@ class PackData:
     type_descriptor: Packable
     optional: bool
 
+
 def get_valid_type(attr_type: Type) -> Optional[Type[Packable]]:
     if not isinstance(attr_type, (Packable, TypeDescriptor)):
         inner_type = get_args(attr_type)
@@ -63,6 +64,7 @@ def get_valid_type(attr_type: Type) -> Optional[Type[Packable]]:
             return None
         return get_valid_type(inner_type[0])
     return attr_type
+
 
 class Packer(Packable):
     _packing_data: list[PackData]
@@ -89,7 +91,7 @@ class Packer(Packable):
 
         for i in type_hints:
             attr, type_hint = i
-            
+
             origin = get_origin(type_hint)
             inner_types = get_args(type_hint)
 

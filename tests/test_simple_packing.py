@@ -1,7 +1,5 @@
 import math
 import struct
-import packer
-
 from dataclasses import (
     dataclass,
 )
@@ -9,10 +7,10 @@ from dataclasses import (
 from packer import (
     OptionalPack,
     Pack,
-    packable,
+    float,
     int8,
     int32,
-    float
+    packable,
 )
 
 
@@ -27,7 +25,7 @@ class SimpleStruct:
 @packable
 @dataclass
 class FloatStruct:
-    float_member: Pack[packer.pack_types.Float]
+    float_member: Pack[float]
 
 
 def test_float_packing() -> None:
