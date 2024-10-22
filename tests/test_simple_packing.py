@@ -28,8 +28,8 @@ def test_simple_packing() -> None:
         int8_member: Pack[int8] = 0
         int8_member_optional: OptionalPack[int8] = 0
 
-    assert SimpleStruct(1, 2, None).pack() == bytearray(b"\x01\x00\x00\x00\x02\x00")
-    assert SimpleStruct(1, 2, 2).pack() == bytearray(b"\x01\x00\x00\x00\x02\x00\x02\x00")
+    assert SimpleStruct(1, 2, None).pack() == bytearray(b"\x01\x00\x00\x00\x02")
+    assert SimpleStruct(1, 2, 2).pack() == bytearray(b"\x01\x00\x00\x00\x02\x02")
 
     s = SimpleStruct(0, 0, None)
 
