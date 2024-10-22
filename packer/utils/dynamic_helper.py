@@ -36,7 +36,10 @@ def create_pack_pair(
 
     total_min_size = 0
 
+    # TODO: Make this eyesore not an eyesore..?
     for pack in packing_data:
+        is_extended = getattr(pack.type_descriptor, "__is_extended_packable__", False)
+
         if pack.optional:
             pack_method_body.append(f"if not self.{pack.attr_name}: return data")
             unpack_method_body.append(
@@ -50,13 +53,29 @@ def create_pack_pair(
         )
 
         if pack.type_descriptor._size > 0:
-            unpack_method_body.append(
-                f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.unpack(data[{pack.offset}:{pack.offset + pack.type_descriptor._size}])"
-            )
+            if is_extended:
+                unpack_method_body.append(
+                    f"self.{pack.attr_name} = {pack.type_descriptor.__name__}()"
+                )
+                unpack_method_body.append(
+                    f"self.{pack.attr_name}.unpack(data[{pack.offset}:{pack.offset + pack.type_descriptor._size}])"
+                )
+            else:
+                unpack_method_body.append(
+                    f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.unpack(data[{pack.offset}:{pack.offset + pack.type_descriptor._size}])"
+                )
         else:
-            unpack_method_body.append(
-                f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.unpack(data[{pack.offset}:len(data)])"
-            )
+            if is_extended:
+                unpack_method_body.append(
+                    f"self.{pack.attr_name} = {pack.type_descriptor.__name__}()"
+                )
+                unpack_method_body.append(
+                    f"self.{pack.attr_name}.unpack(data[{pack.offset}:{pack.offset + pack.type_descriptor._size}])"
+                )
+            else:
+                unpack_method_body.append(
+                    f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.unpack(data[{pack.offset}:len(data)])"
+                )
 
         globals()[pack.type_descriptor.__name__] = pack.type_descriptor
 
