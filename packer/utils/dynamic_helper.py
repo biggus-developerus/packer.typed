@@ -40,7 +40,7 @@ def create_pack_pair(
         if pack.optional:
             pack_method_body.append(f"if not self.{pack.attr_name}: return data")
             unpack_method_body.append(
-                f"if len(data) < {pack.offset + pack.type_descriptor._size}: return"
+                f"if len(data) < {pack.offset + pack.type_descriptor._size}: return True"  # return true cuz it's optional
             )
         else:
             total_min_size += pack.type_descriptor._size
@@ -55,7 +55,8 @@ def create_pack_pair(
 
         globals()[pack.type_descriptor.__name__] = pack.type_descriptor
 
-    unpack_method_body[0] = f"if len(data) < {total_min_size}: return"
+    unpack_method_body[0] = f"if len(data) < {total_min_size}: return False"
+    unpack_method_body.append(f"return True")
 
     pack_func_name, pack_func_code = f"__{cls.__name__}_pack__", "\n    ".join(pack_method_body)
     unpack_func_name, unpack_func_code = f"__{cls.__name__}_unpack__", "\n    ".join(
@@ -66,8 +67,8 @@ def create_pack_pair(
     exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
     exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
 
-    print(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
-    print(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
+    # print(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
+    # print(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
 
     return (
         lambda self, cb=locals()[pack_func_name]: cb(self),
