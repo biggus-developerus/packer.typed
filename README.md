@@ -7,41 +7,24 @@ A modern library that simplifies packing and unpacking to a whole other level.
 ## Usage
 ### Basic Usage
 ```python
-from packer import packable, Pack
-from packer.pack_types import int_types as ints
+from packer import (
+    Pack, 
+    OptionalPack,
+    packable, 
+    int32, 
+    int8, 
+    float,
+)
+
+from dataclasses import dataclass
 
 @packable
 @dataclass
 class SimpleStruct:
-    int32_member: Pack[ints.Int["L4"]]
-    int8_member: Pack[ints.Int["L2"]]
+    int32_member: Pack[int32]
+    int8_member: Pack[int8]
+    float_member: OptionalPack[float]
 
-s = SimpleStruct(3, 2)
+s = SimpleStruct(3, 2, None)
 s.pack() # bytearray(b'\x03\x00\x00\x00\x02\x00')
-```
-
-## Hacks
-### Getting type hints back
-```python
-@packable
-class SimpleStruct:
-    int32_member: Pack[Int["L4"]]
-    int8_member: Pack[Int["L2"]]
-
-    def __init__(self) -> None:
-        self.int32_member: int
-        self.int8_member: int
-
-# ----------------
-# with dataclasses
-
-@packable
-@dataclass
-class SimpleStruct:
-    int32_member: Pack[Int["L4"]]
-    int8_member: Pack[Int["L2"]]
-
-    def __post_init__(self) -> None:
-        self.int32_member: int
-        self.int8_member: int
 ```
