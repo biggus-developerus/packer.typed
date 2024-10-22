@@ -11,14 +11,12 @@ from typing import (
     Any,
     ItemsView,
     Optional,
-    Protocol,
     Self,
     Type,
     TypeVar,
     get_args,
     get_origin,
     get_type_hints,
-    runtime_checkable,
 )
 
 from .exceptions import *
@@ -26,27 +24,13 @@ from .pack_types import (
     OptionalPack,
     Pack,
 )
+from .protocols import (
+    Packable,
+    TypeDescriptor,
+)
 from .utils import (
     create_pack_pair,
 )
-
-
-@runtime_checkable
-class Packable(Protocol):
-    _size: int
-
-    def pack(self) -> bytearray: ...
-    def unpack(self, data: bytearray) -> None: ...
-
-
-@runtime_checkable
-class TypeDescriptor(Protocol):
-    _size: int
-
-    @classmethod
-    def __pack__(cls) -> bytearray: ...
-    @classmethod
-    def __unpack__(cls, data: bytearray) -> None: ...
 
 
 @dataclass
