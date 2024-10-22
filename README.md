@@ -18,9 +18,9 @@ class SimpleStruct:
     float_member: OptionalPack[float]
 
 s = SimpleStruct(3, 2, None)
-s.pack() # bytearray(b'\x03\x00\x00\x00\x02\x00')
+s.pack() # bytearray(b'\x03\x00\x00\x00\x02')
 
-s.unpack(bytearray(b'\x01\x00\x00\x00\x04\x00'))
+s.unpack(bytearray(b'\x01\x00\x00\x00\x04'))
 # s.int32_member == 1
 # s.int8_member == 4
 # s.float_member == None
