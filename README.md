@@ -6,61 +6,42 @@ A modern library that simplifies packing and unpacking to a whole other level.
 
 ## Usage
 ### Basic Usage
-```py
-from packer import Int8, Pack
-from dataclasses import dataclass
+```python
+from packer import packable, Pack
+from packer.pack_types import int_types as ints
 
 @packable
 @dataclass
 class SimpleStruct:
-    test1: Pack[Int8]
-    test2: Pack[Int8]
+    int32_member: Pack[ints.Int["L4"]]
+    int8_member: Pack[ints.Int["L2"]]
 
-test = SimpleStruct(1, 2)
-test.pack() # \x01\x02
+s = SimpleStruct(3, 2)
+s.pack() # bytearray(b'\x03\x00\x00\x00\x02\x00')
 ```
-### Creating & Using custom types
-```py
-from packer import TypeDescriptor, packable, Pack, OptionalPack
-from dataclasses import dataclass
 
-class LengthPrefixedStr(TypeDescriptor):
-    __data_size__: int = 2
-
-    @classmethod
-    def pack(cls, val: str) -> bytes:
-        return int.to_bytes(len((enc := val.encode())), 2, "little") + enc
-
-    @classmethod
-    def unpack(cls, data: bytearray) -> tuple[int, str]:
-        str_len = int.from_bytes(data[:2], "little")
-        return str_len + 2, data[2 : 2 + str_len].decode()
-
-
+## Hacks
+### Getting type hints back
+```python
 @packable
-@dataclass
-class CustomTypesStruct:
-    test1: Pack[LengthPrefixedStr]
-    test2: OptionalPack[LengthPrefixedStr] = None
+class SimpleStruct:
+    int32_member: Pack[Int["L4"]]
+    int8_member: Pack[Int["L2"]]
 
-test = CustomTypesStruct("hi")
-test.pack() # b"\x02\x00hi"
+    def __init__(self) -> None:
+        self.int32_member: int
+        self.int8_member: int
 
-test.test2 = "hi2"
-test.pack() #b"\x02\x00hi\x03\x00hi2"
-```
+# ----------------
+# with dataclasses
 
-## Notes
-#### If you're going to use this with a dataclass then be prepared to lose object attr typehints. A simple workaround is to declare object attributes with the types like the following:
-```py
 @packable
 @dataclass
 class SimpleStruct:
-    id: Pack[Int32] = 0
-    val: OptionalPack[Float] = None
+    int32_member: Pack[Int["L4"]]
+    int8_member: Pack[Int["L2"]]
 
     def __post_init__(self) -> None:
-        self.id: int
-        self.val: float | None
+        self.int32_member: int
+        self.int8_member: int
 ```
----

@@ -1,127 +1,129 @@
-__all__ = ("packable",)
+__all__ = (
+    "Pack",
+    "OptionalPack",
+    "packable",
+)
 
+from dataclasses import (
+    dataclass,
+)
 from typing import (
-    Callable,
+    Any,
+    ItemsView,
     Protocol,
     Self,
     Type,
     TypeVar,
-    Union,
     get_args,
     get_origin,
     get_type_hints,
+    runtime_checkable,
+    Optional,
 )
 
-from ._types import *
+from .exceptions import *
+from .pack_types import (
+    OptionalPack,
+    Pack,
+)
+from .utils import (
+    create_pack_pair,
+)
 
 
-class PackableProtocol(Protocol):
-    _min_size: int
-    _packing_data: list[tuple[str, Type, bool, Callable, Callable]]
+@runtime_checkable
+class Packable(Protocol):
+    _size: int
 
     def pack(self) -> bytearray: ...
-    def unpack(self, data: bytearray) -> int: ...
+    def unpack(self, data: bytearray) -> None: ...
 
 
-class Packer:
+@runtime_checkable
+class TypeDescriptor(Protocol):
+    _size: int
+
+    @classmethod
+    def __pack__(cls) -> bytearray: ...
+    @classmethod
+    def __unpack__(cls, data: bytearray) -> None: ...
+
+
+@dataclass
+class PackData:
+    attr_name: str
+    offset: int
+    type_descriptor: Packable
+    optional: bool
+
+def get_valid_type(attr_type: Type) -> Optional[Type[Packable]]:
+    if not isinstance(attr_type, (Packable, TypeDescriptor)):
+        inner_type = get_args(attr_type)
+        if not inner_type:
+            return None
+        return get_valid_type(inner_type[0])
+    return attr_type
+
+class Packer(Packable):
+    _packing_data: list[PackData]
+
     def __new__(cls, *args, **kwargs) -> Self:
         instance = super().__new__(cls)
+
         if getattr(cls, "_packing_data", None):
             return instance
 
-        # attr name, attr_type, is_optional, packer, unpacker
         cls._packing_data = []
-        cls._min_size = 0
+        type_hints: list[ItemsView[str, Any]]
 
-        type_hints = get_type_hints(instance).items()
-        type_hints_list = list(type_hints)
+        try:
+            type_hints = get_type_hints(cls)
+            if not type_hints:
+                raise PackerInvalidTypeHints(cls.__base__)
+            type_hints = list(type_hints.items())
+        except TypeError:
+            raise PackerInvalidTypeHints(cls.__base__)
 
-        hint_count = len(type_hints)
+        offset = 0
+        last_origin = None
 
-        for i, j in enumerate(type_hints):
-            attr, attr_type = j
-            origin = get_origin(attr_type)
-            inner_type = get_args(attr_type)[0]
+        for i in type_hints:
+            attr, type_hint = i
+            
+            origin = get_origin(type_hint)
+            inner_types = get_args(type_hint)
 
-            next_attr = type_hints_list[i + 1 if i + 1 < hint_count else i][0]
-            next_origin = get_origin(type_hints_list[i + 1 if i + 1 < hint_count else i][1])
-
-            if not origin or origin not in {Pack, OptionalPack}:
+            if not inner_types:
                 continue
 
-            if not issubclass(inner_type, (TypeDescriptor, Packer)):
-                raise ValueError(
-                    f"The type corresponding with the attribute '{attr}' is marked as Pack but does not subclass TypeDescriptor/Packer."
+            inner_type = get_valid_type(inner_types[0])
+
+            if origin not in {Pack, OptionalPack} or not inner_type:
+                continue
+
+            if last_origin == OptionalPack and origin == Pack:
+                raise PackerException(
+                    f"`{attr}` (non-optional) comes after `{type_hints[type_hints.index(i)-1][0]}` which is an optional member.",
+                    cls.__base__,
                 )
 
-            optional = True
-            if not origin is OptionalPack:
-                optional = False
-                data_size = 0
-                if issubclass(inner_type, (Packer,)):
-                    data_size = inner_type._min_size
-                else:
-                    data_size = inner_type.__data_size__
-                cls._min_size += data_size
+            cls._packing_data.append(PackData(attr, offset, inner_type, origin == OptionalPack))
 
-            if optional and not next_origin is OptionalPack:
-                raise ValueError(
-                    f"{attr} ({origin}) is followed by {next_attr} ({next_origin}) which is not optional. "
-                )
+            offset += inner_type._size
+            last_origin = origin
 
-            packer, unpacker = inner_type.pack, inner_type.unpack
-            cls._packing_data.append((attr, inner_type, optional, packer, unpacker))
+        cls.pack, cls.unpack = create_pack_pair(cls.__base__, cls._packing_data)
 
         return instance
 
-    def pack(self) -> bytearray:
-        data = bytearray()
-
-        for attr, attr_type, optional, packer, _ in self._packing_data:
-            val = getattr(self, attr, None)
-
-            if val is None and not optional:
-                raise ValueError(
-                    f"The value of {attr} cannot be None as it's not optional ({attr_type})"
-                )
-
-            if val is None and optional:  # just break cuz... laikeee???
-                # TODO: Debug print to inform the user
-                # that we broke (my money up doe on skibidi)
-                # out of the loop and will no longer pack the remaining attrs.
-                break
-
-            data += packer(val)
-
-        return data
-
-    def unpack(self, data: bytearray) -> int:
-        offset = 0
-        data_len = len(data)
-
-        if data_len < self._min_size:
-            raise ValueError(
-                f"Got data of length {data_len} and expected data of length >= {self._min_size}"
-            )
-
-        for attr, _, optional, _, unpacker in self._packing_data:
-            if offset >= data_len and optional:
-                break
-
-            size, val = unpacker(data[offset:])
-            offset += size
-
-            setattr(self, attr, val)
-
-        return offset
+    def pack(self) -> bytearray: ...
+    def unpack(self, _: bytearray) -> None: ...
 
 
 T = TypeVar("T")
 
 
-def packable(
-    cls: Type[T],
-) -> Union[Type[T], Type[PackableProtocol]]:  # I mean... got better ideas??
+def packable(cls: Type[T]) -> Type[T] | Type[Packable]:
     class ExtendedCls(cls, Packer): ...
 
     return ExtendedCls
