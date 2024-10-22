@@ -49,9 +49,14 @@ def create_pack_pair(
             f"data += {pack.type_descriptor.__name__}.__pack__(self.{pack.attr_name})"
         )
 
-        unpack_method_body.append(
-            f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.__unpack__(data[{pack.offset}:])"
-        )
+        if pack.type_descriptor._size > 0:
+            unpack_method_body.append(
+                f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.__unpack__(data[{pack.offset}:{pack.offset + pack.type_descriptor._size}])"
+            )
+        else:
+            unpack_method_body.append(
+                f"self.{pack.attr_name} = {pack.type_descriptor.__name__}.__unpack__(data[{pack.offset}:len(data)])"
+            )
 
         globals()[pack.type_descriptor.__name__] = pack.type_descriptor
 
