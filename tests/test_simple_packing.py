@@ -58,7 +58,23 @@ def test_all_data_packing() -> None:
     assert s.int32_member == 4 and s.all_data_member == b"hello!"
 
 
+def test_sized_packing() -> None:
+    @packable
+    @dataclasses.dataclass
+    class SizedStruct:
+        sized_member: Pack[Sized[5]]
+        sized_member2: Pack[Sized[3]]
+
+    assert SizedStruct(b"hello", b"hi!").pack() == b"hellohi!"
+    s = SizedStruct(b"", b"")
+
+    assert s.unpack(b"hellohi!")
+    assert s.sized_member == b"hello"
+    assert s.sized_member2 == b"hi!"
+
+
 if __name__ == "__main__":
     test_float_packing()
     test_simple_packing()
     test_all_data_packing()
+    test_sized_packing()
