@@ -100,7 +100,7 @@ class Packer(Packable):
 
         cls.pack, cls.unpack = create_pack_pair(cls.__base__, cls._packing_data)
         cls._size = offset
-        
+
         return instance
 
     def pack(self) -> bytearray: ...
@@ -111,6 +111,4 @@ T = TypeVar("T")
 
 
 def packable(cls: Type[T]) -> Type[T] | Type[Packable]:
-    class ExtendedCls(cls, Packer): ...
-
-    return ExtendedCls
+    return type(f"{cls.__name__}Packable", (cls, Packer), {"__is_extended_packable__": True})
