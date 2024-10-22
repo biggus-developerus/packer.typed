@@ -1,23 +1,13 @@
+import dataclasses
 import math
 import struct
-from dataclasses import (
-    dataclass,
-)
 
-from packer import (
-    AllData,
-    OptionalPack,
-    Pack,
-    float,
-    int8,
-    int32,
-    packable,
-)
+from packer import *
 
 
 def test_float_packing() -> None:
     @packable
-    @dataclass
+    @dataclasses.dataclass
     class FloatStruct:
         float_member: Pack[float]
 
@@ -32,7 +22,7 @@ def test_float_packing() -> None:
 
 def test_simple_packing() -> None:
     @packable
-    @dataclass
+    @dataclasses.dataclass
     class SimpleStruct:
         int32_member: Pack[int32] = 0
         int8_member: Pack[int8] = 0
@@ -54,7 +44,7 @@ def test_simple_packing() -> None:
 
 def test_all_data_packing() -> None:
     @packable
-    @dataclass
+    @dataclasses.dataclass
     class AllDataStruct:
         int32_member: Pack[int32] = 0
         all_data_member: OptionalPack[AllData] = None
