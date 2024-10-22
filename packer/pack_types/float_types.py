@@ -20,7 +20,7 @@ class _Float(metaclass=FloatMeta):
         return struct.pack(cls._size_str, val)
 
     @classmethod
-    def __unpack__(cls, data: bytearray) -> float:
+    def __unpack__(cls, data: bytes) -> float:
         return struct.unpack(cls._size_str, data)[0]
 
 

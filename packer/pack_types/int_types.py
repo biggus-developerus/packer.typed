@@ -32,7 +32,7 @@ class _Int(metaclass=IntMeta):
         return val.to_bytes(cls._size, cls._order, signed=cls._signed)
 
     @classmethod
-    def __unpack__(cls, data: bytearray) -> int:
+    def __unpack__(cls, data: bytes) -> int:
         return int.from_bytes(data[: cls._size], cls._order, signed=cls._signed)
 
 
