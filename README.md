@@ -65,3 +65,28 @@ file.unpack(bytearray(b'\x01\x03\x03\x03\x03\x03hi!'))
 # file.file_type == FileTypes.TXT
 # file.data == b"\x03\x03\x03\x03\x03hi!"
 ```
+
+### Packing a packable
+<span style="color: orange;">**Nested packable attributes must have default values to ensure proper instantiation**</span>
+
+```python
+@packable
+@dataclass
+class Header:
+    data_type: Pack[int8] = None
+    data_size: Pack[int32] = None
+
+@packable
+@dataclass
+class Packet:
+    header: Pack[Header]
+    data: Pack[AllData]
+
+packet = Packet(Header(1, 5), b"hello")
+packet.pack() # bytearray(b"\x01\x05\x00\x00\x00hello")
+
+packet.unpack(bytearray(b"\x04\x02\x00\x00\x00hi"))
+# packet.header.data_type == 4
+# packet.header.data_size == 2
+# packet.data == hi
+```
