@@ -88,13 +88,13 @@ def create_pack_pair(
     )
 
     # TODO: Find a better way of doing this.. sketchy ash fr on skibidi sigma ohio rizz
-    exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
-    exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
+    exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code), globals())
+    exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code), globals())
 
     # print(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
     # print(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
 
     return (
-        lambda self, cb=locals()[pack_func_name]: cb(self),
-        lambda self, data, cb=locals()[unpack_func_name]: cb(self, data),
+        lambda self, cb=globals()[pack_func_name]: cb(self),
+        lambda self, data, cb=globals()[unpack_func_name]: cb(self, data),
     )
