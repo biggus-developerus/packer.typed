@@ -2,6 +2,7 @@ __all__ = ("create_pack_pair",)
 
 from typing import (
     TYPE_CHECKING,
+    Any,
     Callable,
     Type,
     TypeVar,
@@ -30,7 +31,7 @@ T = TypeVar("T")
 def create_pack_pair(
     cls: Type[T],
     packing_data: list["PackData"],
-) -> tuple[Callable[[], bytearray], Callable[[bytearray], None]]:
+) -> tuple[Callable[[Any, Any], Any], Callable[[Any, Any, Any], Any]]:
     pack_method_body = []
     unpack_method_body = [""]  # for the size check
 
@@ -95,6 +96,6 @@ def create_pack_pair(
     # print(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
 
     return (
-        lambda self, cb=globals()[pack_func_name]: cb(self),
-        lambda self, data, cb=globals()[unpack_func_name]: cb(self, data),
+        lambda self, cb=globals()[pack_func_name]: cb(self),  # type: ignore
+        lambda self, data, cb=globals()[unpack_func_name]: cb(self, data),  # type: ignore
     )
