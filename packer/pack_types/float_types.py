@@ -1,11 +1,10 @@
 __all__ = ("Float",)
 
 import struct
-from typing import Self
 
 
 class FloatMeta(type):
-    def __getitem__(cls, size: int) -> Self:
+    def __getitem__(cls, size: int) -> type:
         size_str = "f" if size == 4 else "d"
         return type(f"{size_str}{cls.__name__}", (cls,), {"_size": size, "_size_str": size_str})
 

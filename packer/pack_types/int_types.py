@@ -3,17 +3,14 @@ __all__ = (
     "UInt",
 )
 
-from typing import (
-    Literal,
-    Self,
-)
+from typing import Literal
 
 type INTS = Literal["L1", "L2", "L4", "L8", "B1", "B2", "B4", "B8"]
 
 
 class IntMeta(type):
-    def __getitem__(cls, size_and_order: INTS) -> Self:
-        order = "little" if size_and_order[0].lower() == "l" else "big"
+    def __getitem__(cls, size_and_order: INTS) -> type:
+        order: Literal["little", "big"] = "little" if size_and_order[0].lower() == "l" else "big"
         size = int(size_and_order[1:])
 
         return type(
@@ -24,7 +21,7 @@ class IntMeta(type):
 # TypeDescriptor
 class _Int(metaclass=IntMeta):
     _size: int = 4
-    _order: str = "little"
+    _order: Literal["little", "big"] = "little"
     _signed: bool = False
 
     @classmethod

@@ -1,10 +1,8 @@
 __all__ = ("Sized",)
 
-from typing import Self
-
 
 class SizedMeta(type):
-    def __getitem__(cls, size: int) -> Self:
+    def __getitem__(cls, size: int) -> type:
         return type(f"SIZE{size}{cls.__name__}", (cls,), {"_size": size})
 
 
@@ -21,4 +19,4 @@ class _Sized(metaclass=SizedMeta):
         return data[: cls._size]
 
 
-class Sized(bytes, _Sized): ...
+class Sized(bytes, _Sized): ...  # type: ignore
