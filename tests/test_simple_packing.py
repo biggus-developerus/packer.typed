@@ -9,7 +9,7 @@ def test_float_packing() -> None:
     @packable
     @dataclasses.dataclass
     class FloatStruct:
-        float_member: Pack[float]
+        float_member: Pack[float32]
 
     f = FloatStruct(0.5)
     assert f.pack() == struct.pack("f", 0.5)

@@ -7,8 +7,8 @@ __all__ = (  # sob..
     "uint16",
     "uint32",
     "uint64",
-    "float",
-    "double",
+    "float32",
+    "float64",
 )
 
 from typing import Type
@@ -26,5 +26,5 @@ uint16 = Type[UInt["L2"]]
 uint32 = Type[UInt["L4"]]
 uint64 = Type[UInt["L8"]]
 
-float = Type[Float[4]]
-double = Type[Float[8]]
+float32 = Type[Float[4]]
+float64 = Type[Float[8]]

@@ -15,7 +15,7 @@ from packer import *
 class SimpleStruct:
     int32_member: Pack[int32]
     int8_member: Pack[int8]
-    float_member: OptionalPack[float]
+    float_member: OptionalPack[float32]
 
 s = SimpleStruct(3, 2, None)
 s.pack() # bytearray(b'\x03\x00\x00\x00\x02')
