@@ -67,7 +67,7 @@ file.unpack(bytearray(b'\x01\x03\x03\x03\x03\x03hi!'))
 ```
 
 ### Packing a packable
-<span style="color: orange;">**Nested packable attributes must have default values to ensure proper instantiation**</span>
+**Nested packable attributes must have default values to ensure proper instantiation**
 
 ```python
 @packable
