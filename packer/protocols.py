@@ -4,6 +4,7 @@ __all__ = (
 )
 
 from typing import (
+    Any,
     Protocol,
     runtime_checkable,
 )
@@ -22,6 +23,6 @@ class TypeDescriptor(Protocol):
     _size: int
 
     @classmethod
-    def pack(cls) -> bytearray: ...
+    def pack(cls, val: Any) -> bytes | bytearray: ...
     @classmethod
-    def unpack(cls, data: bytearray) -> None: ...
+    def unpack(cls, data: bytearray) -> Any: ...
