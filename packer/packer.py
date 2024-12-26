@@ -37,7 +37,7 @@ from .utils import (
 class PackData:
     attr_name: str
     offset: int
-    type_descriptor: Packable
+    type_descriptor: Type[Packable]
     optional: bool
 
 
@@ -54,19 +54,21 @@ class Packer(Packable):
     _packing_data: list[PackData]
 
     def __new__(cls, *args, **kwargs) -> Self:
+        assert cls.__base__ is not None, "Base class cannot be None"
+
         instance = super().__new__(cls)
 
         if getattr(cls, "_packing_data", None):
             return instance
 
         cls._packing_data = []
-        type_hints: list[ItemsView[str, Any]]
+        type_hints: list[tuple[str, Any]]
 
         try:
-            type_hints = get_type_hints(cls)
-            if not type_hints:
+            _type_hints = get_type_hints(cls)
+            if not _type_hints:
                 raise PackerInvalidTypeHints(cls.__base__)
-            type_hints = list(type_hints.items())
+            type_hints = list(_type_hints.items())
         except TypeError:
             raise PackerInvalidTypeHints(cls.__base__)
 
@@ -74,7 +76,8 @@ class Packer(Packable):
         last_origin = None
 
         for i in type_hints:
-            attr, type_hint = i
+            attr = i[0]
+            type_hint = i[1]
 
             origin = get_origin(type_hint)
             inner_types = get_args(type_hint)
@@ -98,13 +101,16 @@ class Packer(Packable):
             offset += inner_type._size
             last_origin = origin
 
-        cls.pack, cls.unpack = create_pack_pair(cls.__base__, cls._packing_data)
-        cls._size = offset
+        pack_pair = create_pack_pair(cls.__base__, cls._packing_data)
+
+        setattr(cls, "pack", pack_pair[0])
+        setattr(cls, "unpack", pack_pair[1])
+        setattr(cls, "_size", offset)
 
         return instance
 
-    def pack(self) -> bytearray: ...
-    def unpack(self, _: bytearray) -> None: ...
+    def pack(self) -> bytearray: ...  # type: ignore
+    def unpack(self, _: bytearray) -> bool: ...  # type: ignore
 
 
 T = TypeVar("T")
