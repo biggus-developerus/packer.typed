@@ -9,7 +9,6 @@ from dataclasses import (
 )
 from typing import (
     Any,
-    ItemsView,
     Optional,
     Self,
     Type,
