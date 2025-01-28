@@ -6,6 +6,7 @@ from typing import (
     Callable,
     Type,
     TypeVar,
+    cast,
 )
 
 if TYPE_CHECKING:
@@ -27,11 +28,11 @@ def {}(self, data):
 
 T = TypeVar("T")
 
+type PackFunc = Callable[[Any], Any]
+type UnpackFunc = Callable[[Any, Any], bool]
 
-def create_pack_pair(
-    cls: Type[T],
-    packing_data: list["PackData"],
-) -> tuple[Callable[[Any, Any], Any], Callable[[Any, Any, Any], Any]]:
+
+def create_pack_pair(cls: Type[T], packing_data: list["PackData"]) -> tuple[PackFunc, UnpackFunc]:
     pack_method_body = []
     unpack_method_body = [""]  # for the size check
 
@@ -89,13 +90,15 @@ def create_pack_pair(
     )
 
     # TODO: Find a better way of doing this.. sketchy ash fr on skibidi sigma ohio rizz
-    exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code), globals())
-    exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code), globals())
+    exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code), globals=globals())
+    exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code), globals=globals())
 
     # print(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
     # print(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
 
-    return (
-        lambda self, cb=globals()[pack_func_name]: cb(self),  # type: ignore
-        lambda self, data, cb=globals()[unpack_func_name]: cb(self, data),  # type: ignore
+    pack_func = cast(PackFunc, lambda self, cb=globals()[pack_func_name]: cb(self))
+    unpack_func = cast(
+        UnpackFunc, lambda self, data, cb=globals()[unpack_func_name]: cb(self, data)
     )
+
+    return (pack_func, unpack_func)
