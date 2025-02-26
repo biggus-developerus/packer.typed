@@ -1,5 +1,7 @@
 __all__ = ("create_pack_pair",)
 
+import sys
+
 from typing import (
     TYPE_CHECKING,
     Any,
@@ -90,8 +92,12 @@ def create_pack_pair(cls: Type[T], packing_data: list["PackData"]) -> tuple[Pack
     )
 
     # TODO: Find a better way of doing this.. sketchy ash fr on skibidi sigma ohio rizz
-    exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code), globals=globals())
-    exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code), globals=globals())
+    if sys.version_info >= (3, 13):
+        exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code), globals=globals())
+        exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code), globals=globals())
+    else:
+        exec(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code), globals())
+        exec(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code), globals())
 
     # print(TEMPLATE_PACK_METHOD.format(pack_func_name, pack_func_code))
     # print(TEMPLATE_UNPACK_METHOD.format(unpack_func_name, unpack_func_code))
